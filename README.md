@@ -17,6 +17,14 @@ This ServiceMonitor will start and monitor windows services running in a contain
 .\ServiceMonitor.exe ServiceName
 ```
 
+## Docker
+
+Add ServiceMonitor.exe as the main entry point and specify the name of the service to monitor
+
+```docker
+ENTRYPOINT ["ServiceMonitor.exe", "MyServiceToMonitor"]
+```
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require
