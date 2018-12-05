@@ -31,39 +31,9 @@ int __cdecl _tmain(int argc, _TCHAR* argv[])
     if (argc <= 1)
     {
 		_tprintf(L"\nUSAGE: %s [windows service name]", argv[0]);
-		_tprintf(L"\n       %s w3svc [application pool]", argv[0]);
 		_tprintf(L"\n\nOptions:");
-		_tprintf(L"\n    windows service name    Name of the Windows service to monitor");
-		_tprintf(L"\n    application pool        Name of the application pool to monitor; defaults to DefaultAppPool\n");
+		_tprintf(L"\n    windows service name    Name of the Windows service to monitor");		
         goto Finished;
-    }
-
-    // iis only allow monitor on w3svc
-    if (_wcsicmp(argv[1], L"w3svc") == 0)
-    {
-        hr = sm.StopServiceByName(L"w3svc");
-        if (FAILED(hr))
-        {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-            goto Finished;
-        }
-
-        //
-        // iis scenario, update the environment variable
-        // we hardcode this behavior for now. We can add an input switch later if needed
-        //
-        WCHAR* pstrAppPoolName = L"DefaultAppPool";
-        if (argc > 2)
-        {
-            pstrAppPoolName = argv[2];
-        }
-        IISConfigUtil configHelper = IISConfigUtil();
-        if( FAILED(hr = configHelper.Initialize()) ||
-            FAILED(hr = configHelper.UpdateEnvironmentVarsToConfig(pstrAppPoolName)))
-        {
-            _tprintf(L"\nFailed to update IIS configuration\n");
-            goto Finished;
-        }
     }
 
     g_hStopEvent = CreateEvent(
@@ -88,7 +58,9 @@ int __cdecl _tmain(int argc, _TCHAR* argv[])
 
     if (g_hStopEvent != INVALID_HANDLE_VALUE)
     {
+		_tprintf(L"\rStarting Service: %s", argv[1]);
         hr = sm.StartServiceByName(argv[1]);
+		_tprintf(L"\rService: %s has started", argv[1]);
     }
 
     if (SUCCEEDED(hr))
@@ -102,7 +74,11 @@ int __cdecl _tmain(int argc, _TCHAR* argv[])
                 SERVICE_NOTIFY_STOPPED | SERVICE_NOTIFY_STOP_PENDING | SERVICE_NOTIFY_PAUSED | SERVICE_NOTIFY_PAUSE_PENDING,
                 g_hStopEvent);
         }
-    }
+	} else {
+		hr = HRESULT_FROM_WIN32(GetLastError());
+		_tprintf(L"\nERROR: Failed to set control handle with error [%x]\n", hr);
+		goto Finished;
+	}
     //
     // don't capture the stop error
     //

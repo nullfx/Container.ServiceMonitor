@@ -11,6 +11,7 @@ class Service_Monitor
 public:
     Service_Monitor() :_hSCManager(NULL)
     {
+		_fInitialized = FALSE;
         InitializeSRWLock(&_srwLock);
     }
 
