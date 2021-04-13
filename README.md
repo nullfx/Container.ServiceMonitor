@@ -3,7 +3,10 @@
 **ServiceMonitor** is a Windows executable designed to be used as the entrypoint
 process when running a service inside a Windows Server container.
 
-This ServiceMonitor will start and monitor windows services running in a container.
+ServiceMonitor will start and monitor windows services running inside a container. 
+It monitors the status of your service and will exit when the service state 
+changes from `SERVICE_RUNNING` to either one of `SERVICE_STOPPED`, 
+`SERVICE_STOP_PENDING`, `SERVICE_PAUSED` or `SERVICE_PAUSE_PENDING`.
 
 ## Build
 
